@@ -4,9 +4,9 @@ import logging
 
 LOG_FILE_NAME = 'vmdedup.log'
 CHUNK_SIZE = 512 # 4 kb size
-#HOST = 'localhost'
-#PORT = '9160'
-servers=['169.231.50.3:9160', 'dhcp-46-221.cs.ucsb.edu:9160']
+HOST = 'localhost'
+PORT = '9160'
+servers=['127.0.0.1:9160']
 # keyspaces
 MINHASH_KEYSPACE = 'minhash'
 FILES_KEYSPACE = 'files'

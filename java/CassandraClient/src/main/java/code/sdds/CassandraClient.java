@@ -159,6 +159,7 @@ public class CassandraClient
                 		BytesArraySerializer.get(), 
                 		BytesArraySerializer.get());
         System.out.println("MINHASHKeySpace " + MINHASHKeySpace);
+        System.out.println('woo!!');
 		ColumnFamilyUpdater<byte[], byte[]> updater = template.createUpdater(minHash);
 		updater.setByteArray(fullHash, null);
 		System.out.println(template.isColumnsExist(fullHash));
@@ -195,10 +196,14 @@ public class CassandraClient
     public static void main( String[] args )
     {
     	CassandraClient caClient = new CassandraClient();
+    	//initialized a cassandra cluster at port 9160
     	caClient.initCluster();
     	// caClient.cleanUp();
+    	// creates the required keyspaces and the CFs in those keyspaces required for the project
     	caClient.createKeySpaceAndColumnFamilies();
+    	//
     	caClient.describeAllKeySpaces();
+    	//
     	caClient.initKeySpaceService();
     	System.out.println("------------------");
     	caClient.insertFullHash("cdef".getBytes(), "abcd".getBytes());

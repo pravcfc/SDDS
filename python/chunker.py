@@ -42,10 +42,10 @@ class chunker:
 		try:
 
 			if(not os.path.exists(path)):
-			  logging.error("chunkify: chunker : invalied file specified")
+			  logging.error("chunkify: chunker : invalied file specified aborting chunk creation process!!")
 			  sys.exit(1)
 			else:
-			  logging.debug("file exists")
+			  logging.debug("valid file specified, continuing process of chunk creation...")
 	
 			if(self.db.is_file_exists(path)):
 			  logging.error("chunkify: chunker :: an entry for file already exists in db")

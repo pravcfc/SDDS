@@ -1,0 +1,8 @@
+2015-02-22 16:10:50,934 30 dblayer inside dblayer:__init__ method
+2015-02-22 16:10:50,943 43 dblayer Exiting dblayer:__init__ :  connection to cassandra successful
+2015-02-22 16:10:50,943 30 dblayer inside dblayer:__init__ method
+2015-02-22 16:10:50,951 43 dblayer Exiting dblayer:__init__ :  connection to cassandra successful
+2015-02-22 16:10:50,951 40 chunker chunker:Chunkify: creating chunks for the file :/Users/praveenselvaraj/Desktop/pom.txt
+2015-02-22 16:10:50,951 48 chunker valid file specified, continuing process...
+2015-02-22 16:10:50,951 138 dblayer inside dblayer:file_exists method	with filename = /Users/praveenselvaraj/Desktop/pom.txt
+2015-02-22 16:10:50,953 51 chunker chunkify: chunker :: an entry for file already exists in db
