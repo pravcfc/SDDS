@@ -17,7 +17,7 @@ class chunker:
 		 '''     1. setup connection to cassandra   2. intialise logger object   '''
 	         try:
 			 self.db = dblayer()
-			 self.metricsObj = metrics()			
+			 self.metricsObj = metrics()		
 		 except Exception,e:
 			logging.error("chunker:__init__ failed with error %s", e)
 			sys.exit(1)
@@ -37,28 +37,27 @@ class chunker:
 				This method assumes that the filename passed is unique and doesn't exist in the DB
 			
 		'''		 	
-		logging.info("chunker:Chunkify: creating chunks for the file :%s",path)
+		logging.info("chunker:chunkify: creating chunks for the file :%s",path)
 		start_time = time.time()
 		try:
 
 			if(not os.path.exists(path)):
-			  logging.error("chunkify: chunker : invalied file specified aborting chunk creation process!!")
+			  logging.error("chunker:chunkify: invalied file specified aborting chunk creation process!!")
 			  sys.exit(1)
 			else:
-			  logging.debug("valid file specified, continuing process of chunk creation...")
+			  logging.debug("chunker:chunkify: valid file specified, continuing process of chunk creation...")
 	
 			if(self.db.is_file_exists(path)):
-			  logging.error("chunkify: chunker :: an entry for file already exists in db")
-			  sys.exit(1)
+			  logging.error("chunker:chunkify: an entry for file already exists in db")
 			else:
-			  logging.debug("new file")				
+			  logging.debug("chunker:chunkify: new file!!")				
 			chunkmap = {}	
 			filerecipe = []
 			minhash = None
 			fullhash = hashlib.md5()
 			key = ""
 			file_size = os.path.getsize(path)
-			logging.info("chunker:chunkify :: file shredding initiated for filesize :: %s (bytes) at time: %s", file_size, datetime.now()) 
+			logging.info("chunker:chunkify: file shredding initiated for filesize :: %s (bytes) at time: %s", file_size, datetime.now()) 
 		        total_data_written = 0	
 			with open(path, 'rb') as f:
 				blocks_already_present = 0
@@ -70,7 +69,7 @@ class chunker:
 					filerecipe.append(key)
 					
 					if(None == key):
-						 logging.error('chunker:chunkify failed with error : md5  hash was returned as None')
+						 logging.error('chunker:chunkify: failed with error : md5  hash was returned as None')
 			                         sys.exit(1)
 					
 					if(chunkmap.has_key(key)):
@@ -117,7 +116,7 @@ class chunker:
 		start_time = time.time()
 		try:
 			if(self.db.is_file_exists(file_absolute_path) == False):
-				logging.error("chunker : get_file : file not found in database")
+				logging.error("chunker:get_file: file not found in database")
 				sys.exit(1)
 			minhash = self.db.get_minhash(file_absolute_path)
 			chunk_list = self.db.get_file_data(minhash, file_absolute_path)
@@ -130,13 +129,13 @@ class chunker:
 			new_fullhash = new_fullhash.hexdigest()
 			logging.debug("%s fullhash after stitching the file %s", file_absolute_path, new_fullhash)
 			if(self.db.is_fullhash_exists(minhash, new_fullhash) == False):
-				logging.error("chunker : get_file : wrong full hash ")
+				logging.error("chunker:get_file: get_file : wrong full hash ")
 			logging.debug("%s file created successfully ", file_new_absolute_path)
 			f.close()
 			logging.info("time taken for retrieving file %s - %f seconds", file_new_absolute_path, (time.time() - start_time))
 		except Exception,e:
 			print e
-			logging.error('chunker:get_file failed with error : %s', str(e))
+			logging.error('chunker:get_file: failed with error : %s', str(e))
 			sys.exit(1)     	
 
 	
@@ -147,7 +146,7 @@ class chunker:
 			hasher.update(chunk)
 			return hasher.hexdigest()
 		except Exception,e:
-			logging.error('chunker:_getmd5 : returned error %s',e)
+			logging.error('chunker:_getmd5: returned error %s',e)
 			return None
 			
 	def _getchunk(self, fhandler, offset):

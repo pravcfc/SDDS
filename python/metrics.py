@@ -12,7 +12,7 @@ class metrics:
 		try:
 			self.db = dblayer()
 		except Exception, e:
-			logging.error("metrics:___init__ failed with error %s", e)
+			logging.error("metrics:___init__: failed with error %s", e)
 			return None
 
      	def get_saved_space(self):
@@ -24,7 +24,7 @@ class metrics:
                         saved_space = total_input_size - files_saved_size
                         logging.debug("Saved Space : %s Bytes", saved_space)
                 except Exception, e:
-                        logging.error('error in the get_saved_space %s ', e)
+                        logging.error('metrics:get_saved_space: error %s ', e)
                         return None
 
 	

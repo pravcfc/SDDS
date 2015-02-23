@@ -43,7 +43,7 @@ class dblayer:
 		     logging.info("Exiting dblayer:__init__ :  connection to cassandra successful")
 		     
 		except Exception, e:
-		     logging.error("Exiting dblayer with error %s" ,str(e))
+		     logging.error("dbplayer:__init__: Exiting dblayer with error %s" ,str(e))
 		     raise e
 
 	def add_chunk(self, minhash, chunk_hash, chunk_data):
@@ -64,7 +64,7 @@ class dblayer:
 			colfamily.insert(row,{colname:colval, "ref":"1"})
 			logging.info("dblayer:addchunk: Chunk successfully added " )
 		except Exception, e:
-			logging.error("exiting dblayer:addchunk with error %s ", str(e))
+			logging.error("dbplayer:add_chunk: exiting dblayer:addchunk with error %s ", str(e))
 		
 	def add_fullhash(self, minhash, fullhash):
 		''' method to add full hash entry in the fullhash col fam'''
@@ -94,7 +94,7 @@ class dblayer:
 			colfamily.insert(file_identifier, minhash)
 			logging.info("dblayer:addfileentry : entry for fileid - minhash created ")
 		except Exception,e:
-			logging.error("dblayer:addfileentry has errors %s ",str(e))
+			logging.error("dblayer:add_file_entry: has errors %s ",str(e))
 			sys.exit(1)	
 
 
@@ -119,7 +119,7 @@ class dblayer:
 		try:
 			colfamily.insert(filename, dict1)
 		except Exception, e:
-			logging.error("dblayer: add_min_hash raised an error : %s", e)
+			logging.error("dblayer:add_min_hash: raised an error : %s", e)
 			raise e
 	
 	def get_minhash(self, file_id):
@@ -129,7 +129,7 @@ class dblayer:
 			logging.debug("colfamily.get(file_id) %s", colfamily.get(file_id)) 
 			return colfamily.get(file_id)["minhash"]
 		except Exception, e:
-			logging.error("dblayer: get_minhash raised an error : %s", e)
+			logging.error("dblayer:get_minhash: raised an error : %s", e)
 			raise e	
 		
 	
@@ -162,6 +162,7 @@ class dblayer:
 				db_chunk_map = colfamily.get(minhash)
 				for chunk_hash in chunk_map.keys():
                 	                value = chunk_map.get(chunk_hash)
+                	                print value
 					if db_chunk_map.has_key( chunk_hash ):
 						ref = db_chunk_map[chunk_hash]['ref'] if db_chunk_map[chunk_hash].has_key('ref') else "0"		
 						db_chunk_map[chunk_hash]['ref'] = str(int(ref) + int(value["ref_count"]))
@@ -182,7 +183,7 @@ class dblayer:
 				colfamily.insert(minhash, temp_dict)
 			logging.debug("chunk_map successfully added")
 		except Exception, e:
-			logging.error('Error in dblayer:insert_chunk_list : %s', e)
+			logging.error('Error in dblayer:insert_chunk_list: %s', e)
 			raise e
 	        
 	def delete_chunk_list(self, minhash, chunk_map):
@@ -209,7 +210,7 @@ class dblayer:
         	        	del chunk_list[chunk_hash]
 			logging.info("dblayer:update_chunk_ref successful")
 		 except Exception,e:
-			logging.error("dblayer:update_chunk_ref failed with error : %s", str(e))
+			logging.error("dblayer:update_chunk_ref: failed with error : %s", str(e))
 			raise e
 
 	
