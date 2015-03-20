@@ -1,7 +1,7 @@
-#! /usr/bin/exec python
 
 import logging
 import hashlib
+import pdb
 import sys,os
 import time
 from dblayer import *
@@ -18,25 +18,17 @@ class chunker:
 	         try:
 			 self.db = dblayer()
 			 self.metricsObj = metrics()		
+			 hconst = 69069
+			 mult = 1
+			 fileBuffer = []
+			 buffptr = 0
 		 except Exception,e:
 			logging.error("chunker:__init__ failed with error %s", e)
 			sys.exit(1)
-		
-	def chunkify(self,path):
-		'''
-			0.1: check if entry for the file exists in DB
-			1. split the file into chunks	
-			2. calculate MD5 hash of each chunk
-			3. Check if the chunk already exists in the DB
-				3.1 if yes: update the reference count
-				3.2 else : create a new entry in DB
-					3.2.1 add chunk to Chunk table
-					3.2.2 add an entry in File Table
 
-			Assumption:
-				This method assumes that the filename passed is unique and doesn't exist in the DB
-			
-		'''		 	
+
+	def chunkify(self,path):
+		 	
 		logging.info("chunker:chunkify: creating chunks for the file :%s",path)
 		start_time = time.time()
 		try:
@@ -57,12 +49,15 @@ class chunker:
 			fullhash = hashlib.md5()
 			key = ""
 			file_size = os.path.getsize(path)
+			mask = 1 << 13
+			mask -= 1
 			logging.info("chunker:chunkify: file shredding initiated for filesize :: %s (bytes) at time: %s", file_size, datetime.now()) 
 		        total_data_written = 0	
 			with open(path, 'rb') as f:
 				blocks_already_present = 0
 				while(True):
 					chunk = f.read(CHUNK_SIZE)			
+					pdb.set_trace()
 					if("" == chunk):
 						break
 					key = self._getmd5(chunk)
@@ -158,6 +153,13 @@ class chunker:
 		self.metricsObj.get_saved_space()
 
 if __name__ == '__main__':
+
+	print " <<<<<<<<<<<<< Backup client >>>>>>>>>>>>>>>>>"
+	print " Help " 
+	print "\t -s to store a file "
+	print "\t -g to retrieve a file "
+	print "\t -f to specify the file name u want to store or retrieve "
+	print "\t -t to get the stats "
 
 	parser = OptionParser()
 	parser.add_option("-f", "--file", dest="filename")

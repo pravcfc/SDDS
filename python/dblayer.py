@@ -1,20 +1,3 @@
-#! /usr/lib/exec python
-
-# Pycassa library is used to communicate with cassandra. It can be installed as :
-# sudo apt-get install python-pip
-# sudo pip install pycassa 
-# For more inforamtion visit
-# http://pycassa.github.com/pycassa/installation.html
-
-#create keyspace minhash;
-#use minhash;
-#create column family chunks; # list of merged chunk ids and their data
-#create column family filerecipe; # list of file names and their chunk ids
-#create column family fullhash; # list of full hashes
-
-#create keyspace files; 
-#use files;
-#create column family minhash; # one to one mapping of files and its minhash
 
 import logging,sys
 from pycassa.system_manager import *
@@ -26,9 +9,7 @@ from sdds_constants import *
 class dblayer:
 	def __init__(self):
 		''' setup a connection to cassandra '''
-		#logging.basicConfig(filename = LOGFILENAME, level = logging.DEBUG, format = '%(asctime)s %(lineno)d %(module)s %(message)s')
 		logging.info("inside dblayer:__init__ method")
-		#address = "%s:%s" % (HOST,PORT)
 		try:
 		     #self.sysmgr = SystemManager(address)
 	             
@@ -46,25 +27,25 @@ class dblayer:
 		     logging.error("dbplayer:__init__: Exiting dblayer with error %s" ,str(e))
 		     raise e
 
-	def add_chunk(self, minhash, chunk_hash, chunk_data):
-		''' method to add chunk to chunks columnfamily 
-		    key<String> : minhash - MD5 hash of the chunk to be added
-		    value       : bytes to be written as value of the chunk
+	# def add_chunk(self, minhash, chunk_hash, chunk_data):
+	# 	''' method to add chunk to chunks columnfamily 
+	# 	    key<String> : minhash - MD5 hash of the chunk to be added
+	# 	    value       : bytes to be written as value of the chunk
 
-		    Assumptions:
-			This method assumes that the key doesn't exisits in keyspace.
+	# 	    Assumptions:
+	# 		This method assumes that the key doesn't exisits in keyspace.
 		  		
-                '''
-		logging.info("dblayer:addchunk : enter with param key as %s", str(key))
-		colfamily = self.minhash_chunks_cf
-		row = minhash
-		colname = chunk_hash
-		colval = chunk_data
-		try:
-			colfamily.insert(row,{colname:colval, "ref":"1"})
-			logging.info("dblayer:addchunk: Chunk successfully added " )
-		except Exception, e:
-			logging.error("dbplayer:add_chunk: exiting dblayer:addchunk with error %s ", str(e))
+ #                '''
+	# 	logging.info("dblayer:addchunk : enter with param key as %s", str(key))
+	# 	colfamily = self.minhash_chunks_cf
+	# 	row = minhash
+	# 	colname = chunk_hash
+	# 	colval = chunk_data
+	# 	try:
+	# 		colfamily.insert(row,{colname:colval, "ref":"1"})
+	# 		logging.info("dblayer:addchunk: Chunk successfully added " )
+	# 	except Exception, e:
+	# 		logging.error("dbplayer:add_chunk: exiting dblayer:addchunk with error %s ", str(e))
 		
 	def add_fullhash(self, minhash, fullhash):
 		''' method to add full hash entry in the fullhash col fam'''
@@ -86,16 +67,16 @@ class dblayer:
         	colfamily.insert(minhash, {file_identifier: dict1})
         
 	
-	def add_file_entry(self, file_identifier, minhash):
-		''' method to add an entry to files columnfamily '''
-		logging.info("dblayer:addfileentry  : entered with filename as %s" , file_identifier)
-		colfamily = self.files_minhash_cf
-	        try:
-			colfamily.insert(file_identifier, minhash)
-			logging.info("dblayer:addfileentry : entry for fileid - minhash created ")
-		except Exception,e:
-			logging.error("dblayer:add_file_entry: has errors %s ",str(e))
-			sys.exit(1)	
+	# def add_file_entry(self, file_identifier, minhash):
+	# 	''' method to add an entry to files columnfamily '''
+	# 	logging.info("dblayer:addfileentry  : entered with filename as %s" , file_identifier)
+	# 	colfamily = self.files_minhash_cf
+	#         try:
+	# 		colfamily.insert(file_identifier, minhash)
+	# 		logging.info("dblayer:addfileentry : entry for fileid - minhash created ")
+	# 	except Exception,e:
+	# 		logging.error("dblayer:add_file_entry: has errors %s ",str(e))
+	# 		sys.exit(1)	
 
 
 	def chunk_exists(self, minhash, chunk_hash):
@@ -272,9 +253,9 @@ class dblayer:
 		logging.info("dblayer: get_chunks_count")
 		try:
 			colfamily = self.minhash_chunks_cf	
-			minhash_list = tuple(colfamily.get_range())	
+			minhash_chunks_rows = tuple(colfamily.get_range())	
 			total_chunks = 0
-			for row in minhash_list:
+			for row in minhash_chunks_rows:
 				minhash = row[0]
 				total_chunks += colfamily.get_count(minhash) 	
 			return total_chunks
@@ -292,7 +273,7 @@ class dblayer:
 			for row in files_list:
 				file_id = row[0]
 				total_input_size += int(colfamily.get(file_id)["filesize"])
-			logging.debug("total_input_size %s", total_input_size)
+			logging.debug("total_input_size %s Bytes", total_input_size)
 			return total_input_size
 		except Exception, e:
 			logging.debug("Exception %s", e)

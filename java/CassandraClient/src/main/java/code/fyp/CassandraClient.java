@@ -30,10 +30,6 @@ import me.prettyprint.hector.api.ddl.ComparatorType;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.factory.HFactory;
 
-/**
- * Hello world!
- *
- */
 public class CassandraClient 
 {
 	private static String MINHASH_KS = "MINHASH_KS";

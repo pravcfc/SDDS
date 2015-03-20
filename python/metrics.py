@@ -1,4 +1,3 @@
-#! /usr/bin/exec python
 
 import logging
 import sys,os
@@ -22,7 +21,11 @@ class metrics:
                         files_saved_size = db_chunks_count * CHUNK_SIZE
                         total_input_size = self.db.get_total_input_size()
                         saved_space = total_input_size - files_saved_size
-                        logging.debug("Saved Space : %s Bytes", saved_space)
+                        print "Total input size : %s Bytes" % total_input_size
+                        logging.debug("Chunk saved space in the DB : %s Bytes", files_saved_size)
+                        print "Chunk space in the DB : %s Bytes" % files_saved_size
+                        logging.debug("Space removed by de-duplication : %s Bytes" % saved_space)
+                        print "Space removed by de-duplication : %s Bytes" % saved_space
                 except Exception, e:
                         logging.error('metrics:get_saved_space: error %s ', e)
                         return None

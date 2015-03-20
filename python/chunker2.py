@@ -1,4 +1,3 @@
-#! /usr/bin/exec python
 
 import logging
 import hashlib

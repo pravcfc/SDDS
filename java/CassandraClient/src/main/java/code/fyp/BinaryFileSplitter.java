@@ -15,13 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * 
- * @author Anand Gupta
- * @author Prakash Chandrasekaran
- * @author Gautham Narayanasamy
- * @author VijayaRaghavan Subbaiah
- */
 public class BinaryFileSplitter {
 
 	/**

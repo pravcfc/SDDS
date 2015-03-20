@@ -1,9 +1,8 @@
-#! /usr/bin/exec python
 
 import logging
 
-LOG_FILE_NAME = 'vmdedup.log'
-CHUNK_SIZE = 512 # 4 kb size
+LOG_FILE_NAME = 'fyp_output.log'
+CHUNK_SIZE = 1024 # 4 kb size
 HOST = 'localhost'
 PORT = '9160'
 servers=['127.0.0.1:9160']
