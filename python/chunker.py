@@ -10,6 +10,7 @@ from datetime import datetime
 from sdds_constants import *
 from optparse import OptionParser
 from time import strftime
+import rabin
 
 class chunker:
 	''' This class contains all the code required for the chunking service. This service will be responsible for splitting of file into chunks and storing them in cassandra. '''
@@ -18,10 +19,6 @@ class chunker:
 	         try:
 			 self.db = dblayer()
 			 self.metricsObj = metrics()		
-			 hconst = 69069
-			 mult = 1
-			 fileBuffer = []
-			 buffptr = 0
 		 except Exception,e:
 			logging.error("chunker:__init__ failed with error %s", e)
 			sys.exit(1)
@@ -31,80 +28,81 @@ class chunker:
 		 	
 		logging.info("chunker:chunkify: creating chunks for the file :%s",path)
 		start_time = time.time()
-		try:
+		chunkMap = rabin.get_file_fingerprints(path)	# Returns a list of tupple, each tuple represents (offset, length, fingerprint, filename).
 
-			if(not os.path.exists(path)):
-			  logging.error("chunker:chunkify: invalied file specified aborting chunk creation process!!")
-			  sys.exit(1)
-			else:
-			  logging.debug("chunker:chunkify: valid file specified, continuing process of chunk creation...")
+		pdb.set_trace()
+		# try:
+
+		# 	if(not os.path.exists(path)):
+		# 	  logging.error("chunker:chunkify: invalied file specified aborting chunk creation process!!")
+		# 	  sys.exit(1)
+		# 	else:
+		# 	  logging.debug("chunker:chunkify: valid file specified, continuing process of chunk creation...")
 	
-			if(self.db.is_file_exists(path)):
-			  logging.error("chunker:chunkify: an entry for file already exists in db")
-			else:
-			  logging.debug("chunker:chunkify: new file!!")				
-			chunkmap = {}	
-			filerecipe = []
-			minhash = None
-			fullhash = hashlib.md5()
-			key = ""
-			file_size = os.path.getsize(path)
-			mask = 1 << 13
-			mask -= 1
-			logging.info("chunker:chunkify: file shredding initiated for filesize :: %s (bytes) at time: %s", file_size, datetime.now()) 
-		        total_data_written = 0	
-			with open(path, 'rb') as f:
-				blocks_already_present = 0
-				while(True):
-					chunk = f.read(CHUNK_SIZE)			
-					pdb.set_trace()
-					if("" == chunk):
-						break
-					key = self._getmd5(chunk)
-					filerecipe.append(key)
+		# 	if(self.db.is_file_exists(path)):
+		# 	  logging.error("chunker:chunkify: an entry for file already exists in db")
+		# 	else:
+		# 	  logging.debug("chunker:chunkify: new file!!")				
+		# 	chunkmap = {}	
+		# 	filerecipe = []
+		# 	minhash = None
+		# 	fullhash = hashlib.md5()
+		# 	key = ""
+		# 	file_size = os.path.getsize(path)
+		# 	logging.info("chunker:chunkify: file shredding initiated for filesize :: %s (bytes) at time: %s", file_size, datetime.now()) 
+		#         total_data_written = 0	
+		# 	with open(path, 'rb') as f:
+		# 		blocks_already_present = 0
+		# 		while(True):
+		# 			chunk = f.read(CHUNK_SIZE)			
+		# 			pdb.set_trace()
+		# 			if("" == chunk):
+		# 				break
+		# 			key = self._getmd5(chunk)
+		# 			filerecipe.append(key)
 					
-					if(None == key):
-						 logging.error('chunker:chunkify: failed with error : md5  hash was returned as None')
-			                         sys.exit(1)
+		# 			if(None == key):
+		# 				 logging.error('chunker:chunkify: failed with error : md5  hash was returned as None')
+		# 	                         sys.exit(1)
 					
-					if(chunkmap.has_key(key)):
-						value = chunkmap[key]
-						value["ref_count"] = str( int(value["ref_count"]) + 1)
-						blocks_already_present = blocks_already_present + 1
-					else:
-						value = {"data":chunk, "ref_count":"1"}
-						chunkmap[key] = value
-					if (None == minhash) or (key < minhash) :
-						minhash = key
-					fullhash.update(chunk)	
-			fullhash = fullhash.hexdigest()
+		# 			if(chunkmap.has_key(key)):
+		# 				value = chunkmap[key]
+		# 				value["ref_count"] = str( int(value["ref_count"]) + 1)
+		# 				blocks_already_present = blocks_already_present + 1
+		# 			else:
+		# 				value = {"data":chunk, "ref_count":"1"}
+		# 				chunkmap[key] = value
+		# 			if (None == minhash) or (key < minhash) :
+		# 				minhash = key
+		# 			fullhash.update(chunk)	
+		# 	fullhash = fullhash.hexdigest()
 			
-			# checking whether file exists in db or not 
-			# already done
-			# 
-			logging.info("%s file chunking done ", path)
-			logging.info("chunk list size %s", len(chunkmap))
+		# 	# checking whether file exists in db or not 
+		# 	# already done
+		# 	# 
+		# 	logging.info("%s file chunking done ", path)
+		# 	logging.info("chunk list size %s", len(chunkmap))
 			
-			if self.db.is_fullhash_exists(minhash, fullhash):
-				logging.debug("there is an exact duplicate of the file %s", path)
-				self.db.add_minhash(path, file_size, minhash)
-				return
+		# 	if self.db.is_fullhash_exists(minhash, fullhash):
+		# 		logging.debug("there is an exact duplicate of the file %s", path)
+		# 		self.db.add_minhash(path, file_size, minhash)
+		# 		return
 				
-			self.db.add_minhash(path, file_size, minhash)
-			logging.info("%s - minhash added", path)
-			self.db.add_file_recipe(minhash, path, filerecipe)
-			logging.info("%s - file recipe added", path)
-			self.db.add_fullhash(minhash, fullhash)
-			logging.info("%s - fullhash added", path)
-			self.db.insert_chunk_list(minhash, chunkmap)
-			logging.info("%s - chunk list added ", path)
-			logging.info("time taken for chunking and indexing file %s [file size : %s bytes] - %f seconds", path, file_size, (time.time() - start_time) )		        	
-			#logging.info("Number of chunks already present in the system : %s",blocks_already_present)
-			#logging.info("Total Space saved for the file = %s Kb",  blocks_already_present * 4)
-		except Exception,e:
-			print e
-			logging.error('chunker:chunkify failed with error : %s', str(e))
-			sys.exit(1)
+		# 	self.db.add_minhash(path, file_size, minhash)
+		# 	logging.info("%s - minhash added", path)
+		# 	self.db.add_file_recipe(minhash, path, filerecipe)
+		# 	logging.info("%s - file recipe added", path)
+		# 	self.db.add_fullhash(minhash, fullhash)
+		# 	logging.info("%s - fullhash added", path)
+		# 	self.db.insert_chunk_list(minhash, chunkmap)
+		# 	logging.info("%s - chunk list added ", path)
+		# 	logging.info("time taken for chunking and indexing file %s [file size : %s bytes] - %f seconds", path, file_size, (time.time() - start_time) )		        	
+		# 	#logging.info("Number of chunks already present in the system : %s",blocks_already_present)
+		# 	#logging.info("Total Space saved for the file = %s Kb",  blocks_already_present * 4)
+		# except Exception,e:
+		# 	print e
+		# 	logging.error('chunker:chunkify failed with error : %s', str(e))
+		# 	sys.exit(1)
 	
 	def get_file(self, file_absolute_path, file_new_absolute_path):
 		''' Gets the specified file from the storage '''
